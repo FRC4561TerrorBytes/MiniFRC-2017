@@ -1,0 +1,7 @@
+joystick
+COM1
+axis,forward,0,0
+axis,right,0,1
+axis,arm control,0,2
+button,activate spinner,0,5
+button,auto mode 1,a
