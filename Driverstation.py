@@ -41,13 +41,16 @@ class print_():
         self.stack.append(str(text))
         if len(self.stack) > 20:
             self.log += 1
+        self.render()
+        pygame.display.update()
+        
         
     def render(self):
         for i in range(0,len(self.stack)-1):
             b = str(self.stack[i])
             a = (24 * i) - (self.log * 24)
             if a >=0:
-                rendertext(20,b,10,int(a))    
+                rendertext(20,b,10,int(a))
 
 def rendertext(scale,text,x,y):
     font = pygame.font.SysFont("courier",scale)

@@ -1,2 +1,6 @@
-COM1
-button,test button,a
+COM46
+joystick
+axis,forward,0,1
+axis,right,0,2
+axis,throttle,0,3
+axis,strafe,0,0
