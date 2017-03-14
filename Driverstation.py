@@ -38,23 +38,23 @@ class print_():
         if text[0] == '/':
             self.stack.append(" ")
             text = text[1:]
-        self.stack.append(text)
+        self.stack.append(str(text))
         if len(self.stack) > 40:
-            #print(len(self.stack))
             self.log += 1
-        for item in self.stack:
-            b = str(item)
-            a = (24 * int(self.stack.index(item))) - (self.log * 24)
-            rendertext(20,b,10,a)
+        
+    def render(self):
+        for i in range(0,len(self.stack)-1):
+            b = str(self.stack[i])
+            a = (24 * i) - (self.log * 24)
+            rendertext(20,b,10,int(a))
+        
+        
 
 def rendertext(scale,text,x,y):
     font = pygame.font.SysFont("courier",scale)
-    textsurf = font.render(text,True,black,white)
-    textrect = textsurf.get_rect()
-    textrect.x = x
-    textrect.y = y
-    display.blit(textsurf,textrect)
-    pygame.display.update()
+    thing = font.render(text,1,black)
+    display.blit(thing,(x,y))
+    
 
 class axis():
     def __init__(self,name,a,b):
@@ -79,8 +79,7 @@ class axis():
                     return "1"
                 elif event.type == pygame.KEYDOWN and event.key == self.backward:
                     return "-1"
-                else:
-                    return "0"
+            return "0"
 
 class button():
     def __init__(self,name,a,b = 0):
@@ -102,7 +101,7 @@ class button():
             for event in events:
                 if event.type == pygame.KEYDOWN and event.key == self.key:
                     return "1"
-                return "0"
+            return "0"
         
 
 
@@ -132,7 +131,7 @@ def connect(default,num = -1):
                 p.P("[WARNING] Couldn't connect to robot on ANY port!")
                 return None
             
- 
+flag = False
 p = print_()
 com = ""
 package = []    
@@ -206,16 +205,19 @@ try:
                         p.P("Hat %s value: %s" % (l, hat))
             else:
                 p.P("[WARNING] Joysticks enabled in config file but no joysticks found! Shutting Down!")
+                flag = True
         else:
             p.P("[INFO] Joysticks not enabled in config file, not loading joystick control")
     except Exception as e:
         p.P('[WARNING] Improperly formatted config file or lazy programming led to this error')
+        flag = True
 except:
     p.P('[WARNING] Could not find/open "config.txt"')
+    flag = True
 
 s = connect(com)
 joysticks = []
-if s != None:
+if s != None and flag == False:
     p.P("[INFO] Connected to robot!")
 
     if joystick_mode == True and int(pygame.joystick.get_count()) > 0:
@@ -226,13 +228,16 @@ if s != None:
             joysticks.append(joystick_two)    
     Clock = pygame.time.Clock()
     while 1:
+        display.fill(white)
         pak = ""
         events = pygame.event.get()
         for item in package:
             pak += str(item.tick(events,joysticks)) + ";"
-        p.P(str(pak))        
+        p.P(str(pak))
         s.write(bytes(pak,'utf-8'))
-        Clock.tick(20)
+        p.render()
+        pygame.display.update()
+        Clock.tick(15)
     
 
     
