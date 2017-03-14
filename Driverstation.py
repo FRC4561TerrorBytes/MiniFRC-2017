@@ -33,6 +33,7 @@ class print_():
     def __init__(self):
         self.stack = []
         self.log = 0
+        self.pack = ""
     def P(self,text):
         print(str(text))
         if text[0] == '/':
@@ -46,11 +47,14 @@ class print_():
         
         
     def render(self):
+        display.fill(white)
+        rendertext(20,self.pack,10,770)
         for i in range(0,len(self.stack)-1):
             b = str(self.stack[i])
             a = (24 * i) - (self.log * 24)
             if a >=0:
                 rendertext(20,b,10,int(a))
+        
 
 def rendertext(scale,text,x,y):
     font = pygame.font.SysFont("courier",scale)
@@ -234,7 +238,8 @@ if s != None and flag == False:
                 
         for item in package:
             pak += str(item.tick(keys,joysticks)) + ";"
-        p.P(str(pak)) # this will probably get changed so that the current input stays in one place onscreen
+        p.pack = str(pak)
+        pak += "z" # this is the final character used to verify that a recieved pak on the robot is valid
         s.write(bytes(pak,'utf-8'))
         p.render()
         pygame.display.update()
