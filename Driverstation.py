@@ -4,7 +4,7 @@ By Squidfairy/Goosefairy/ddthj/michael/Terrorbytes/FRC4561/a couple goblins/you 
 
 TODO:
 
-[] test
+[x] test
 [] add numbers as keyboad buttons support (will require a "#" infront of the number in the config file)
 [] add ability to scroll through log (something to do with pygame.mouseup and mousedown?)
 [] add visuals to inputs kinda like the microsoft joystick tester thing
@@ -12,8 +12,7 @@ TODO:
 [] debug till infinity
 [] finish this list
 '''
-
-version = 3.1
+version = 3.3
 
 import pygame
 import time
@@ -28,6 +27,7 @@ white = (240,240,240)
 black = (0,0,0)
 display.fill(white)
 pygame.display.update()
+alphabet = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]
 
 class print_():
     def __init__(self):
@@ -46,16 +46,14 @@ class print_():
         for i in range(0,len(self.stack)-1):
             b = str(self.stack[i])
             a = (24 * i) - (self.log * 24)
-            rendertext(20,b,10,int(a))
-        
-        
+            if a >=0:
+                rendertext(20,b,10,int(a))    
 
 def rendertext(scale,text,x,y):
     font = pygame.font.SysFont("courier",scale)
     thing = font.render(text,1,black)
     display.blit(thing,(x,y))
     
-
 class axis():
     def __init__(self,name,a,b):
         self.name = name
@@ -66,20 +64,20 @@ class axis():
             p.P('[INFO] Added "%s" joystick-controlled axis to package list' % (self.name))
         else:
             self.joystick = False
-            self.forward = "K_"+str(a)
-            self.backward = "K_"+str(b)
+            self.forward = int(alphabet.index(a) + 97)
+            self.backward = int(alphabet.index(b) + 97)
             p.P('[INFO] Added "%s" keyboard-controlled axis to package list' % (self.name))
             
     def tick(self,events,joysticks):
         if self.joystick == True:
             return str(round(joysticks[self.joystick_num].get_axis(self.joystick_axis),1))
         else:
-            for event in events:
-                if event.type == pygame.KEYDOWN and event.key == self.forward:
-                    return "1"
-                elif event.type == pygame.KEYDOWN and event.key == self.backward:
-                    return "-1"
-            return "0"
+            if events[self.forward] == True:
+                return "1"
+            elif events[self.backward] == True:
+                return "-1"
+            else:
+                return "0"
 
 class button():
     def __init__(self,name,a,b = 0):
@@ -91,19 +89,17 @@ class button():
             p.P('[INFO] Added "%s" joystick-controlled button to package list' % (self.name))
         else:
             self.joystick = False
-            self.key = "K_"+str(a)
+            self.key = int(alphabet.index(a) + 97)
             p.P('[INFO] Added "%s" keyboard-controlled button to package list' % (self.name))
             
     def tick(self,events,joysticks):
         if self.joystick == True:
             return str(joysticks[self.joystick_num].get_button(self.joystick_button))
         else:
-            for event in events:
-                if event.type == pygame.KEYDOWN and event.key == self.key:
-                    return "1"
-            return "0"
-        
-
+            if events[self.key] == True:
+                return "1"
+            else:
+                return "0"
 
 def connect(default,num = -1):
     if num == -1:
@@ -231,14 +227,15 @@ if s != None and flag == False:
         display.fill(white)
         pak = ""
         events = pygame.event.get()
+        keys = pygame.key.get_pressed()
+        for event in events:
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                
         for item in package:
-            pak += str(item.tick(events,joysticks)) + ";"
+            pak += str(item.tick(keys,joysticks)) + ";"
         p.P(str(pak))
         s.write(bytes(pak,'utf-8'))
         p.render()
         pygame.display.update()
-        Clock.tick(15)
-    
-
-    
-
+        Clock.tick(20)

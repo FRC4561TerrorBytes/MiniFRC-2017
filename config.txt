@@ -1,5 +1,2 @@
 COM1
-axis,forward,w,s
-axis,right,d,a
-axis,arm control,q,e
-button,auto mode 1,x
+button,test button,a
