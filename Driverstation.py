@@ -12,7 +12,7 @@ TODO:
 [] debug till infinity
 [] finish this list
 '''
-version = 3.3
+version = 3.4
 
 import pygame
 import time
@@ -20,7 +20,7 @@ import serial
 
 pygame.init()
 
-display = pygame.display.set_mode((1000,1000))
+display = pygame.display.set_mode((1000,800))
 
 Text = pygame.font.SysFont("courier",20)
 white = (240,240,240)
@@ -39,7 +39,7 @@ class print_():
             self.stack.append(" ")
             text = text[1:]
         self.stack.append(str(text))
-        if len(self.stack) > 40:
+        if len(self.stack) > 20:
             self.log += 1
         
     def render(self):
@@ -228,14 +228,15 @@ if s != None and flag == False:
         pak = ""
         events = pygame.event.get()
         keys = pygame.key.get_pressed()
-        for event in events:
-            if event.type == pygame.QUIT:
-                pygame.quit()
                 
         for item in package:
             pak += str(item.tick(keys,joysticks)) + ";"
-        p.P(str(pak))
+        p.P(str(pak)) # this will probably get changed so that the current input stays in one place onscreen
         s.write(bytes(pak,'utf-8'))
         p.render()
         pygame.display.update()
+        for event in events:
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                break
         Clock.tick(20)
