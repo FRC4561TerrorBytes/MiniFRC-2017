@@ -4,24 +4,23 @@ By Squidfairy/Goosefairy/ddthj/michael/Terrorbytes/FRC4561/a couple goblins/you 
 
 TODO:
 
-[x] test
 [] add numbers as keyboad buttons support (will require a "#" infront of the number in the config file)
 [] add ability to scroll through log (something to do with pygame.mouseup and mousedown?)
-[] add visuals to inputs kinda like the microsoft joystick tester thing
 [] test more
 [] debug till infinity
 [] finish this list
 '''
-version = 3.3
+version = 3.4
 
 import pygame
 import time
 import serial
+import random
 
 pygame.init()
 
 display = pygame.display.set_mode((1000,800))
-
+pygame.display.set_caption("MiniFRC Driver Station")
 Text = pygame.font.SysFont("courier",20)
 white = (240,240,240)
 black = (0,0,0)
@@ -29,31 +28,50 @@ display.fill(white)
 pygame.display.update()
 alphabet = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]
 
+colors = [(255,0,0),(0,255,0),(0,255,255),(0,0,255)]
+for i in range(30):
+    new = (random.randint(0,255),random.randint(0,255),random.randint(0,255))
+    while sum(new) > 500 or sum(new)<100:
+        new = (random.randint(0,255),random.randint(0,255),random.randint(0,255))
+    colors.append(new)
+
 class print_():
     def __init__(self):
         self.stack = []
         self.log = 0
+        self.pack = ""
+        self.running = False
     def P(self,text):
         print(str(text))
         if text[0] == '/':
             self.stack.append(" ")
             text = text[1:]
         self.stack.append(str(text))
-        if len(self.stack) > 20:
+        if len(self.stack) > 30:
             self.log += 1
-        
+        self.render()
+        pygame.display.update()
     def render(self):
+        if self.running == False:
+            display.fill(white)
+        if self.pack != "" and self.running == False:
+            self.running = True
+            p.P("[INFO] Driver station is now ACTIVE")
+        rendertext(20,"Live Package Readout:",10,750)
+        rendertext(20,self.pack,10,770)
         for i in range(0,len(self.stack)-1):
             b = str(self.stack[i])
             a = (24 * i) - (self.log * 24)
             if a >=0:
-                rendertext(20,b,10,int(a))    
+                rendertext(20,b,10,int(a))  
 
-def rendertext(scale,text,x,y):
+def rendertext(scale,text,x,y,center = False):
     font = pygame.font.SysFont("courier",scale)
     thing = font.render(text,1,black)
+    if center == True:
+        x -= (int(thing.get_rect().width / 2) - 10)
     display.blit(thing,(x,y))
-    
+
 class axis():
     def __init__(self,name,a,b):
         self.name = name
@@ -61,6 +79,8 @@ class axis():
             self.joystick = True
             self.joystick_num = int(a)
             self.joystick_axis = int(b)
+            self.slider = colors[random.randint(0,len(colors)-1)]
+            
             p.P('[INFO] Added "%s" joystick-controlled axis to package list' % (self.name))
         else:
             self.joystick = False
@@ -68,20 +88,42 @@ class axis():
             self.backward = int(alphabet.index(b) + 97)
             p.P('[INFO] Added "%s" keyboard-controlled axis to package list' % (self.name))
             
-    def tick(self,events,joysticks):
+    def tick(self,events,joysticks,pos):
         if self.joystick == True:
+            self.drawAxis(pos,round(joysticks[self.joystick_num].get_axis(self.joystick_axis),1))
             return str(round(joysticks[self.joystick_num].get_axis(self.joystick_axis),1))
         else:
             if events[self.forward] == True:
+                self.drawAxis(pos,1)
                 return "1"
             elif events[self.backward] == True:
+                self.drawAxis(pos,-1)
                 return "-1"
             else:
                 return "0"
+    def drawAxis(self,pos,value):
+        #drawing the scale
+        pos = 400 + (pos * 80)
+        rendertext(15,str(self.name),pos,470,True)
+        rendertext(10,"1",pos - 15,495,True)
+        rendertext(10,"-1",pos - 15,695)
+        pygame.draw.line(display,black,(pos,500),(pos+20,500),3)
+        pygame.draw.line(display,black,(pos,700),(pos+20,700),3)
+        pygame.draw.line(display,black,(pos+10,500),(pos+10,700),1)
+        #drawing the point
+
+        #difference is 200
+        #midpoint is 600
+        div_color = (int(self.slider[0]*abs(value)),int(self.slider[1]*abs(value)),int(self.slider[2]*abs(value)))
+        pygame.draw.line(display,div_color,(pos+5,600+int(value * 100)),(pos+15,600+int(value * 100)),8)
+        
+
+        
 
 class button():
     def __init__(self,name,a,b = 0):
         self.name = name
+        self.color = colors[random.randint(0,len(colors)-1)]
         if a.isdigit():
             self.joystick = True
             self.joystick_num = int(a)
@@ -92,14 +134,26 @@ class button():
             self.key = int(alphabet.index(a) + 97)
             p.P('[INFO] Added "%s" keyboard-controlled button to package list' % (self.name))
             
-    def tick(self,events,joysticks):
+    def tick(self,events,joysticks,pos):
         if self.joystick == True:
+            self.drawButton(pos,int(joysticks[self.joystick_num].get_button(self.joystick_button)))
             return str(joysticks[self.joystick_num].get_button(self.joystick_button))
         else:
             if events[self.key] == True:
+                self.drawButton(pos,1)
                 return "1"
             else:
+                self.drawButton(pos,0)
                 return "0"
+    def drawButton(self,pos,pres):
+        pos = 400 + (pos*80)
+        #write the name above the button
+        rendertext(15,str(self.name),pos-10,550,True)
+        #draw the button
+        if pres == True:
+            pygame.draw.circle(display,self.color,(pos,600),20,0)
+        else:
+            pygame.draw.circle(display,self.color,(pos,600),20,3)
 
 def connect(default,num = -1):
     if num == -1:
@@ -168,7 +222,7 @@ try:
             p.P("[INFO] Joysticks enabled in config file, loading joystick control")
             pygame.joystick.init()
             joysticks = [pygame.joystick.Joystick(x) for x in range(pygame.joystick.get_count())]
-            p.P("/Detected %s joystick(s): " % (pygame.joystick.get_count())+str(joysticks))
+            p.P("/[INFO] Detected %s joystick(s): " % (pygame.joystick.get_count())+str(joysticks))
             if pygame.joystick.get_count() > 0:
                 for i in range(pygame.joystick.get_count()):
                     joystick = pygame.joystick.Joystick(i)
@@ -177,35 +231,35 @@ try:
                         events = pygame.event.get()
                         time.sleep(0.1)
                     name = joystick.get_name()
-                    p.P("/Joystick name: %s" % (name))
+                    p.P("/ Joystick name: %s" % (name))
                     
                     axes = joystick.get_numaxes()
-                    p.P("Num of axes: %s" % (axes))
+                    p.P("   Num of axes: %s" % (axes))
                     
                     for j in range( axes ):
                         axis = joystick.get_axis( j )
-                        p.P("Axis %s value: %s" % (j, axis) )
+                        p.P("       Axis %s value: %s" % (j, axis) )
                         
                     buttons = joystick.get_numbuttons()
-                    p.P("Number of buttons: %s"%(buttons))
+                    p.P("   Number of buttons: %s"%(buttons))
 
                     for k in range( buttons ):
                         button = joystick.get_button( k )
-                        p.P("Button %s value: %s"%(k,button))
+                        p.P("       Button %s value: %s"%(k,button))
 
                     hats = joystick.get_numhats()
-                    p.P("Number of hats: %s" % (hats))
+                    p.P("   Number of hats: %s" % (hats))
                     
                     for l in range( hats ):
                         hat = joystick.get_hat( l )
-                        p.P("Hat %s value: %s" % (l, hat))
+                        p.P("       Hat %s value: %s" % (l, hat))
             else:
                 p.P("[WARNING] Joysticks enabled in config file but no joysticks found! Shutting Down!")
                 flag = True
         else:
             p.P("[INFO] Joysticks not enabled in config file, not loading joystick control")
     except Exception as e:
-        p.P('[WARNING] Improperly formatted config file or lazy programming led to this error')
+        p.P('[WARNING] Improperly formatted config file')
         flag = True
 except:
     p.P('[WARNING] Could not find/open "config.txt"')
@@ -228,14 +282,17 @@ if s != None and flag == False:
         pak = ""
         events = pygame.event.get()
         keys = pygame.key.get_pressed()
+                
+        for i in range(0,len(package)):
+            pak += str(package[i].tick(keys,joysticks,i)) + ";"
+        p.pack = str(pak)
+        pak += "z" # this is the final character used to verify that a recieved pak on the robot is valid
+        s.write(bytes(pak,'utf-8'))
+        p.render()
+        pygame.display.flip()
+        pygame.display.update()
         for event in events:
             if event.type == pygame.QUIT:
                 pygame.quit()
-                
-        for item in package:
-            pak += str(item.tick(keys,joysticks)) + ";"
-        p.P(str(pak)) # this will probably get changed so that the current input stays in one place onscreen
-        s.write(bytes(pak,'utf-8'))
-        p.render()
-        pygame.display.update()
+                break
         Clock.tick(20)

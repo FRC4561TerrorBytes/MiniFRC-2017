@@ -1,4 +1,4 @@
-COM46
+COM1
 joystick
 button,test button,a
 axis,forward,0,1

@@ -1,10 +1,18 @@
-import sys
 from cx_Freeze import setup, Executable
 
-if sys.platform == "win32":
-    base = "Win32GUI"
+# Dependencies are automatically detected, but it might need
+# fine tuning.
+buildOptions = dict(packages = [], excludes = [])
 
-setup(  name = "MiniFRC Driver Station",
-        version = "3.3",
-        description = "Driver Station",
-        options = 
+import sys
+base = 'Win32GUI' if sys.platform=='win32' else None
+
+executables = [
+    Executable('Driverstation.pyw', base=base)
+]
+
+setup(name='MiniFRC Drivers Station',
+      version = '3.4',
+      description = 'Driver Station',
+      options = dict(build_exe = buildOptions),
+      executables = executables)

@@ -20,7 +20,7 @@ import random
 pygame.init()
 
 display = pygame.display.set_mode((1000,800))
-
+pygame.display.set_caption("MiniFRC Driver Station")
 Text = pygame.font.SysFont("courier",20)
 white = (240,240,240)
 black = (0,0,0)
