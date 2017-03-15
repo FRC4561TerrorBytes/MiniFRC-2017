@@ -15,5 +15,5 @@ axis,<name>,<forward key>,<backward key>        <sets up an axis controlled by 2
 axis,<name>,<joystick number>,<joystick axis>   <sets up an axis controlled by a joystick, supports multiple joysticks
 
 button,<name>,<key>                              <sets up a button controlled by the keyboard
-button,<name>,<joystick number>,<joystick axis>  <sets up a button controlled by a joystick button
+button,<name>,<joystick number>,<joystick button number>  <sets up a button controlled by a joystick button
 ```
