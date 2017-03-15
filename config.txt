@@ -6,3 +6,5 @@ axis,throttle,0,3
 axis,strafe,0,0
 button,testjoy,0,0
 button,testkey,a
+button,testbutton,z
+axis,axiskey,w,s

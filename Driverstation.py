@@ -16,6 +16,7 @@ import pygame
 import time
 import serial
 import random
+import os
 
 pygame.init()
 
@@ -75,12 +76,11 @@ def rendertext(scale,text,x,y,center = False):
 class axis():
     def __init__(self,name,a,b):
         self.name = name
+        self.slider = colors[random.randint(0,len(colors)-1)]
         if a.isdigit():
             self.joystick = True
             self.joystick_num = int(a)
             self.joystick_axis = int(b)
-            self.slider = colors[random.randint(0,len(colors)-1)]
-            
             p.P('[INFO] Added "%s" joystick-controlled axis to package list' % (self.name))
         else:
             self.joystick = False
@@ -100,6 +100,7 @@ class axis():
                 self.drawAxis(pos,-1)
                 return "-1"
             else:
+                self.drawAxis(pos,0)
                 return "0"
     def drawAxis(self,pos,value):
         #drawing the scale
@@ -115,10 +116,7 @@ class axis():
         #difference is 200
         #midpoint is 600
         div_color = (int(self.slider[0]*abs(value)),int(self.slider[1]*abs(value)),int(self.slider[2]*abs(value)))
-        pygame.draw.line(display,div_color,(pos+5,600+int(value * 100)),(pos+15,600+int(value * 100)),8)
-        
-
-        
+        pygame.draw.line(display,div_color,(pos+5,600-int(value * 100)),(pos+15,600-int(value * 100)),8)
 
 class button():
     def __init__(self,name,a,b = 0):
@@ -202,6 +200,7 @@ try:
     #button,name,joystick_number,joystick_button_number
     try:
         for line in f:
+            line = line.strip('\n')
             if line.find("axis") != -1:
                 v = line.split(",")
                 package.append(axis(v[1],v[2],v[3]))
@@ -260,6 +259,7 @@ try:
             p.P("[INFO] Joysticks not enabled in config file, not loading joystick control")
     except Exception as e:
         p.P('[WARNING] Improperly formatted config file')
+        p.P("[WARNING] Attempting to load config file anyways... this might hurt a bit")
         flag = True
 except:
     p.P('[WARNING] Could not find/open "config.txt"')
@@ -294,5 +294,17 @@ if s != None and flag == False:
         for event in events:
             if event.type == pygame.QUIT:
                 pygame.quit()
+                os._exit(1)
                 break
         Clock.tick(20)
+p.P("[WARNING] A fatal error has occured, please restart the driver station")
+while flag == True:
+    events = pygame.event.get()
+    for event in events:
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            os._exit(1)
+            break
+    rendertext(25,"A fatal error has occured, please close the driver station",500,600,True)
+    pygame.display.update()
+    
