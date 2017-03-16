@@ -4,13 +4,10 @@ By Squidfairy/Goosefairy/ddthj/michael/Terrorbytes/FRC4561/a couple goblins/you 
 
 TODO:
 
-[] add numbers as keyboad buttons support (will require a "#" infront of the number in the config file)
-[] add ability to scroll through log (something to do with pygame.mouseup and mousedown?)
-[] test more
 [] debug till infinity
 [] finish this list
 '''
-version = 3.4
+version = 3.5
 
 import pygame
 import time
@@ -28,7 +25,7 @@ black = (0,0,0)
 display.fill(white)
 pygame.display.update()
 alphabet = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]
-
+numbers = [0,1,2,3,4,5,6,7,8,9]
 colors = [(255,0,0),(0,255,0),(0,255,255),(0,0,255)]
 for i in range(30):
     new = (random.randint(0,255),random.randint(0,255),random.randint(0,255))
@@ -40,6 +37,8 @@ class print_():
     def __init__(self):
         self.stack = []
         self.log = 0
+        self.scroll = 0
+        self.scroll_speed = 0
         self.pack = ""
         self.running = False
     def P(self,text):
@@ -53,19 +52,34 @@ class print_():
         self.render()
         pygame.display.update()
     def render(self):
+        if self.scroll_speed > 0:
+            self.scroll += self.scroll_speed
+            self.scroll_speed -= 1
+        elif self.scroll_speed < 0:
+            self.scroll += self.scroll_speed
+            self.scroll_speed += 1
+            
         if self.running == False:
             display.fill(white)
         if self.pack != "" and self.running == False:
             self.running = True
-            p.P("[INFO] Driver station is now ACTIVE")
+            self.P("[INFO] Driver station is now ACTIVE")
         rendertext(20,"Live Package Readout:",10,750)
         rendertext(20,self.pack,10,770)
-        for i in range(0,len(self.stack)-1):
+        for i in range(0,len(self.stack)):
             b = str(self.stack[i])
-            a = (24 * i) - (self.log * 24)
-            if a >=0:
-                rendertext(20,b,10,int(a))  
-
+            a = (24 * i) - (self.log * 24) + self.scroll
+            if a >=0 and a <= 700:
+                rendertext(20,b,10,int(a))
+            if i == (len(self.stack)-1) and a < 15:
+                self.scroll_speed = 0
+            if i == 0 and a > 700:
+                self.scroll_speed = 0
+    def bail(self):
+        with open('LOGFILE.txt',"w") as f:
+            for item in self.stack:
+                f.write((str(item) + "\n"))
+            
 def rendertext(scale,text,x,y,center = False):
     font = pygame.font.SysFont("courier",scale)
     thing = font.render(text,1,black)
@@ -84,8 +98,14 @@ class axis():
             p.P('[INFO] Added "%s" joystick-controlled axis to package list' % (self.name))
         else:
             self.joystick = False
-            self.forward = int(alphabet.index(a) + 97)
-            self.backward = int(alphabet.index(b) + 97)
+            if len(a) > 1:
+                self.forward = int(numbers.index(int(a[1:])) + 48)
+            else:
+                self.forward = int(alphabet.index(a) + 97)
+            if len(b) > 1:
+                self.backward = int(numbers.index(int(b[1:])) + 48)
+            else:
+                self.backward = int(alphabet.index(b) + 97)
             p.P('[INFO] Added "%s" keyboard-controlled axis to package list' % (self.name))
             
     def tick(self,events,joysticks,pos):
@@ -129,7 +149,10 @@ class button():
             p.P('[INFO] Added "%s" joystick-controlled button to package list' % (self.name))
         else:
             self.joystick = False
-            self.key = int(alphabet.index(a) + 97)
+            if len(a) > 1:
+                self.key = int(numbers.index(int(a[1:]))+48)
+            else:
+                self.key = int(alphabet.index(a) + 97)
             p.P('[INFO] Added "%s" keyboard-controlled button to package list' % (self.name))
             
     def tick(self,events,joysticks,pos):
@@ -156,7 +179,7 @@ class button():
 def connect(default,num = -1):
     if num == -1:
         try:
-            s = serial.Serial(str(default),9600,timeout = 1)
+            s = serial.Serial(str(default),9600,writeTimeout = 1)
             return s
         except:
             p.P("[WARNING] Couldn't connect to robot with specified COM port in config file")
@@ -180,6 +203,7 @@ def connect(default,num = -1):
                 return None
             
 flag = False
+test_mode = False
 p = print_()
 com = ""
 package = []    
@@ -214,8 +238,10 @@ try:
             elif line.find("joystick") != -1:
                 joystick_mode = True
             elif line.find("COM")!= -1:
-                com = line.strip('\n')
-                
+                if line.find("test") != -1:
+                    test_mode = True
+                else:
+                    com = line.strip('\n')
 
         if joystick_mode:
             p.P("[INFO] Joysticks enabled in config file, loading joystick control")
@@ -254,22 +280,32 @@ try:
                         p.P("       Hat %s value: %s" % (l, hat))
             else:
                 p.P("[WARNING] Joysticks enabled in config file but no joysticks found! Shutting Down!")
-                flag = True
+                if test_mode == False:
+                    flag = True
         else:
             p.P("[INFO] Joysticks not enabled in config file, not loading joystick control")
     except Exception as e:
         p.P('[WARNING] Improperly formatted config file')
+        p.P("[NOTICE] Error logged as: %s"%(e))
         p.P("[WARNING] Attempting to load config file anyways... this might hurt a bit")
-        flag = True
-except:
+        if test_mode == False:
+            flag = True
+except Exception as e:
     p.P('[WARNING] Could not find/open "config.txt"')
-    flag = True
+    p.P("[NOTICE] Error logged as: %s"%(e))
+    if test_mode == False:
+        flag = True
 
-s = connect(com)
+if test_mode == False:
+    s = connect(com)
+else:
+    p.P("[NOTICE] Config has set Driver station to test mode, things might act weird")
 joysticks = []
-if s != None and flag == False:
-    p.P("[INFO] Connected to robot!")
-
+if test_mode or (s != None and flag == False):
+    if test_mode == False:
+        p.P("[INFO] Connected to robot!")
+    else:
+        p.P("[NOTICE] Test mode active, not connecting to robot")
     if joystick_mode == True and int(pygame.joystick.get_count()) > 0:
         joystick_one = pygame.joystick.Joystick(0)
         joysticks.append(joystick_one)
@@ -286,24 +322,48 @@ if s != None and flag == False:
         for i in range(0,len(package)):
             pak += str(package[i].tick(keys,joysticks,i)) + ";"
         p.pack = str(pak)
-        s.write(bytes(pak,'utf-8'))
+        if test_mode == False:
+            try:
+                s.write(bytes(pak,'utf-8'))
+            except Exception as e:
+                p.P("[NOTICE] Error logged as: %s" % (e))
         p.render()
         pygame.display.flip()
         pygame.display.update()
         for event in events:
             if event.type == pygame.QUIT:
+                p.bail()
                 pygame.quit()
                 os._exit(1)
                 break
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 4:
+                    if p.scroll_speed < 0:
+                        p.scroll_speed = 2
+                    else:
+                        p.scroll_speed += 10
+                if event.button == 5:
+                    if p.scroll_speed > 0:
+                        p.scroll_speed = -2
+                    else:
+                        p.scroll_speed -= 10
         Clock.tick(20)
-p.P("[WARNING] A fatal error has occured, please restart the driver station")
+p.P("[WARNING] Normal operation has ended, expect an error message")
 while flag == True:
-    rendertext(25,"A fatal error has occured, please close the driver station",500,600,True)
+    events = pygame.event.get()
+    rendertext(25,"A 'fatal'? error has occured, please check warnings above",500,600,True)
     pygame.display.update()
     for event in events:
         if event.type == pygame.QUIT:
+            p.bail()
             pygame.quit()
             os._exit(1)
             break
-    events = pygame.event.get()
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 4:
+                p.scroll_speed += 10
+            if event.button == 5:
+                p.scroll_speed -= 10
+p.bail()
+    
     

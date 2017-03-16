@@ -1,0 +1,9 @@
+COMtest
+joystick
+axis,keykey,w,s
+axis,numbernumber,#1,#2
+axis,numberkey,#4,r
+axis,joystick,0,1
+button,key,q
+button,number,#3
+button,joystick,0,0
