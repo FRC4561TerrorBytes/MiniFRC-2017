@@ -14,9 +14,9 @@ int noSignal = 0;                       //this variable is used to shut off the 
 char z;                                 //this is for making sure our bluetooth signal does not get out of order
 
 float powerFL = 0;
-float powerTwo = 0;                       //these variables are for telling their respective motor how much to move
-float powerThree = 0;
-float powerFour = 0;
+float powerFR = 0;                       //these variables are for telling their respective motor how much to move
+float powerBL = 0;
+float powerBR = 0;
                                           //RX,TX  note that RX will go to the TX on the bluetooth, and TX will go to the RX on the bluetooth
 SoftwareSerial bluetooth(14,15);          //Also note that pin 14 is actually analog 0 and 15 is analog 1
                                        
@@ -63,7 +63,7 @@ void loop() {
       if(powerFR >255){
         powerFR = 255;
       }
-      else if (powerFR <-255){
+      else if (powerFR < -255){
         powerFR = -255;
       }
       if(powerBL >255){     
@@ -89,12 +89,12 @@ void loop() {
       } 
       
       if(powerFR < 0){
-        motorBL.run(BACKWARD);
-        motorBL.setSpeed(-powerFR);
+        motorFR.run(BACKWARD);
+        motorFR.setSpeed(-powerFR);
       }
       if (powerFR>=0){
-        motorBL.run(FORWARD);
-        motorBL.setSpeed(powerFR);
+        motorFR.run(FORWARD);
+        motorFR.setSpeed(powerFR);
       }
       
       if(powerBL < 0){
