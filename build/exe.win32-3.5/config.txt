@@ -1,4 +1,0 @@
-joystick
-COM46
-axis,forward,0,1
-axis,right,0,3
