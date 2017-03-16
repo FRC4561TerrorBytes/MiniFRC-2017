@@ -1,0 +1,34 @@
+MiniFRC Driver Station 2017 V3.5
+Booting...
+[INFO] found config.txt, reading...
+[INFO] Added "keykey" keyboard-controlled axis to package list
+[INFO] Added "numbernumber" keyboard-controlled axis to package list
+[INFO] Added "numberkey" keyboard-controlled axis to package list
+[INFO] Added "joystick" joystick-controlled axis to package list
+[INFO] Added "key" keyboard-controlled button to package list
+[INFO] Added "number" keyboard-controlled button to package list
+[INFO] Added "joystick" joystick-controlled button to package list
+[INFO] Joysticks enabled in config file, loading joystick control
+ 
+[INFO] Detected 1 joystick(s): [<Joystick object at 0x06129670>]
+ 
+ Joystick name: SideWinder Force Feedback 2 Joystick
+   Num of axes: 4
+       Axis 0 value: -0.931640625
+       Axis 1 value: 0.95880126953125
+       Axis 2 value: 0.999969482421875
+       Axis 3 value: 0.0
+   Number of buttons: 8
+       Button 0 value: 0
+       Button 1 value: 0
+       Button 2 value: 0
+       Button 3 value: 0
+       Button 4 value: 0
+       Button 5 value: 0
+       Button 6 value: 0
+       Button 7 value: 0
+   Number of hats: 1
+       Hat 0 value: (0, 0)
+[NOTICE] Config has set Driver station to test mode, things might act weird
+[NOTICE] Test mode active, not connecting to robot
+[INFO] Driver station is now ACTIVE
