@@ -279,14 +279,13 @@ if s != None and flag == False:
     Clock = pygame.time.Clock()
     while 1:
         display.fill(white)
-        pak = ""
+        pak = "z"
         events = pygame.event.get()
         keys = pygame.key.get_pressed()
                 
         for i in range(0,len(package)):
             pak += str(package[i].tick(keys,joysticks,i)) + ";"
         p.pack = str(pak)
-        pak += "z" # this is the final character used to verify that a recieved pak on the robot is valid
         s.write(bytes(pak,'utf-8'))
         p.render()
         pygame.display.flip()
@@ -299,12 +298,12 @@ if s != None and flag == False:
         Clock.tick(20)
 p.P("[WARNING] A fatal error has occured, please restart the driver station")
 while flag == True:
-    events = pygame.event.get()
+    rendertext(25,"A fatal error has occured, please close the driver station",500,600,True)
+    pygame.display.update()
     for event in events:
         if event.type == pygame.QUIT:
             pygame.quit()
             os._exit(1)
             break
-    rendertext(25,"A fatal error has occured, please close the driver station",500,600,True)
-    pygame.display.update()
+    events = pygame.event.get()
     

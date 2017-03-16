@@ -1,10 +1,4 @@
 joystick
-COM1
+COM46
 axis,forward,0,1
-axis,right,0,2
-axis,throttle,0,3
-axis,strafe,0,0
-button,testjoy,0,0
-button,testkey,a
-button,testbutton,z
-axis,axiskey,w,s
+axis,right,0,3
