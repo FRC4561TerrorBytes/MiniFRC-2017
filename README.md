@@ -4,7 +4,7 @@ Driver Station source for MiniFRC 2017
 Follow the tutorials, you shouldn't need to download the source unless you want to play around with it
 
 
-NOTE: until furthur notice, only alphabetical keys can be used as keyboard inputs
+NOTE: do not use any blank lines in the config file, in theory the code ignores them but in practice there's a bug somewhere
 
 Things you can type into the config file (exclude all carrots <>):
 ```
