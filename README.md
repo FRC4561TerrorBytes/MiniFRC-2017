@@ -1,11 +1,14 @@
 # MiniFRC-2017
 Driver Station source for MiniFRC 2017
-
 Follow the tutorials, you shouldn't need to download the source unless you want to play around with it
 
+Version 3.6 has some cool shiny features but is VERY untested - use at your own risk
+NEW- Adjustable Baudrate
+NEW- resizeable screen
+FIXED- some lag, see closed issue for details
+FIXED- blanklines? maybe? see closed issue for details
 
 NOTE: do not use any blank lines in the config file, in theory the code ignores them but in practice there's a bug somewhere
-
 Things you can type into the config file (exclude all carrots <>):
 ```
 COM<#>      <defines the COM port number the program will try to connect to the robot with
@@ -16,5 +19,5 @@ axis,<name>,<joystick number>,<joystick axis>   <sets up an axis controlled by a
 
 button,<name>,<key>                              <sets up a button controlled by the keyboard
 button,<name>,<joystick number>,<joystick button number>  <sets up a button controlled by a joystick button
-BAUD,<number>  									<changes the baudrate of the driver station from 9600 to whatever number you choose
+BAUD,<number>  							<changes the baudrate of the driver station from 9600 to whatever number you choose
 ```
