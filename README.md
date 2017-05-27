@@ -16,4 +16,5 @@ axis,<name>,<joystick number>,<joystick axis>   <sets up an axis controlled by a
 
 button,<name>,<key>                              <sets up a button controlled by the keyboard
 button,<name>,<joystick number>,<joystick button number>  <sets up a button controlled by a joystick button
+BAUD,<number>  									<changes the baudrate of the driver station from 9600 to whatever number you choose
 ```

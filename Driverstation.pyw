@@ -7,7 +7,7 @@ TODO:
 [] debug till infinity
 [] finish this list
 '''
-version = 3.5
+version = 3.6
 
 import pygame
 import time
@@ -16,8 +16,9 @@ import random
 import os
 
 pygame.init()
-
-display = pygame.display.set_mode((1000,800))
+bottom = 800
+baudrate = 9600
+display = pygame.display.set_mode((1000,800),pygame.RESIZABLE)
 pygame.display.set_caption("MiniFRC Driver Station")
 Text = pygame.font.SysFont("courier",20)
 white = (240,240,240)
@@ -64,16 +65,16 @@ class print_():
         if self.pack != "" and self.running == False:
             self.running = True
             self.P("[INFO] Driver station is now ACTIVE")
-        rendertext(20,"Live Package Readout:",10,750)
-        rendertext(20,self.pack,10,770)
+        rendertext(20,"Live Package Readout:",10,bottom-50)
+        rendertext(20,self.pack,10,bottom-30)
         for i in range(0,len(self.stack)):
             b = str(self.stack[i])
             a = (24 * i) - (self.log * 24) + self.scroll
-            if a >=0 and a <= 700:
+            if a >=0 and a <= bottom-100:
                 rendertext(20,b,10,int(a))
             if i == (len(self.stack)-1) and a < 15:
                 self.scroll_speed = 0
-            if i == 0 and a > 700:
+            if i == 0 and a > bottom-100:
                 self.scroll_speed = 0
     def bail(self):
         with open('LOGFILE.txt',"w") as f:
@@ -125,18 +126,18 @@ class axis():
     def drawAxis(self,pos,value):
         #drawing the scale
         pos = 400 + (pos * 80)
-        rendertext(15,str(self.name),pos,470,True)
-        rendertext(10,"1",pos - 15,495,True)
-        rendertext(10,"-1",pos - 15,695)
-        pygame.draw.line(display,black,(pos,500),(pos+20,500),3)
-        pygame.draw.line(display,black,(pos,700),(pos+20,700),3)
-        pygame.draw.line(display,black,(pos+10,500),(pos+10,700),1)
+        rendertext(15,str(self.name),pos,bottom-330,True)
+        rendertext(10,"1",pos - 15,bottom-305,True)
+        rendertext(10,"-1",pos - 15,bottom-105)
+        pygame.draw.line(display,black,(pos,bottom-300),(pos+20,bottom-300),3)
+        pygame.draw.line(display,black,(pos,bottom-100),(pos+20,bottom-100),3)
+        pygame.draw.line(display,black,(pos+10,bottom-300),(pos+10,bottom-100),1)
         #drawing the point
 
         #difference is 200
         #midpoint is 600
         div_color = (int(self.slider[0]*abs(value)),int(self.slider[1]*abs(value)),int(self.slider[2]*abs(value)))
-        pygame.draw.line(display,div_color,(pos+5,600-int(value * 100)),(pos+15,600-int(value * 100)),8)
+        pygame.draw.line(display,div_color,(pos+5,bottom-200-int(value * 100)),(pos+15,bottom-200-int(value * 100)),8)
 
 class button():
     def __init__(self,name,a,b = 0):
@@ -169,14 +170,15 @@ class button():
     def drawButton(self,pos,pres):
         pos = 400 + (pos*80)
         #write the name above the button
-        rendertext(15,str(self.name),pos-10,550,True)
+        rendertext(15,str(self.name),pos-10,bottom-250,True)
         #draw the button
         if pres == True:
-            pygame.draw.circle(display,self.color,(pos,600),20,0)
+            pygame.draw.circle(display,self.color,(pos,bottom-200),20,0)
         else:
-            pygame.draw.circle(display,self.color,(pos,600),20,3)
+            pygame.draw.circle(display,self.color,(pos,bottom-200),20,3)
 
-def connect(default,num = -1):
+def connect(default,baudrate):
+    num = -1
     if num == -1:
         try:
             s = serial.Serial(str(default),9600,writeTimeout = 1)
@@ -191,7 +193,7 @@ def connect(default,num = -1):
     else:
         try:
             com = "COM" + str(num)
-            s = serial.Serial(str(com),9600,timeout = 1)
+            s = serial.Serial(str(com),baudrate,timeout = 1)
             return s
         except:
             p.P("[DEBUG] Couldn't connect to robot on %s" % (str(com)))
@@ -225,24 +227,26 @@ try:
     try:
         for line in f:
             line = line.strip('\n')
-            if line.find("axis") != -1:
-                v = line.split(",")
-                package.append(axis(v[1],v[2],v[3]))
-            elif line.find("button") != -1:
-                v = line.split(",")
-                print(len(v))
-                if len(v) < 4:
-                    package.append(button(v[1],v[2]))
-                else:
-                    package.append(button(v[1],v[2],v[3]))
-            elif line.find("joystick") != -1:
-                joystick_mode = True
-            elif line.find("COM")!= -1:
-                if line.find("test") != -1:
-                    test_mode = True
-                else:
-                    com = line.strip('\n')
-
+            if len(line)>0:
+                if line.find("axis") != -1:
+                    v = line.split(",")
+                    package.append(axis(v[1],v[2],v[3]))
+                elif line.find("button") != -1:
+                    v = line.split(",")
+                    if len(v) < 4:
+                        package.append(button(v[1],v[2]))
+                    else:
+                        package.append(button(v[1],v[2],v[3]))
+                elif line.find("joystick") != -1:
+                    joystick_mode = True
+                elif line.find("COM")!= -1:
+                    if line.find("test") != -1:
+                        test_mode = True
+                    else:
+                        com = line.strip('\n')
+                elif line.find("BAUD")!=-1:
+                    baudrate = int(line.split(",")[1])
+                    p.P("[NOTICE] Changed default Baudrate from 9600 to %s"%(str(baudrate)))
         if joystick_mode:
             p.P("[INFO] Joysticks enabled in config file, loading joystick control")
             pygame.joystick.init()
@@ -297,7 +301,7 @@ except Exception as e:
         flag = True
 
 if test_mode == False:
-    s = connect(com)
+    s = connect(com,baudrate)
 else:
     p.P("[NOTICE] Config has set Driver station to test mode, things might act weird")
 joysticks = []
@@ -314,6 +318,7 @@ if test_mode or (s != None and flag == False):
             joysticks.append(joystick_two)    
     Clock = pygame.time.Clock()
     while 1:
+        start = time.time()
         display.fill(white)
         pak = "z"
         events = pygame.event.get()
@@ -336,6 +341,9 @@ if test_mode or (s != None and flag == False):
                 pygame.quit()
                 os._exit(1)
                 break
+            elif event.type == pygame.VIDEORESIZE:
+                display = pygame.display.set_mode((event.dict['size'][0],event.dict['size'][1]),pygame.RESIZABLE)
+                bottom = int(event.dict['size'][1])
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 4:
                     if p.scroll_speed < 0:
@@ -365,5 +373,3 @@ while flag == True:
             if event.button == 5:
                 p.scroll_speed -= 10
 p.bail()
-    
-    

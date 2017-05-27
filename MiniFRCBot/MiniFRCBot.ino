@@ -49,10 +49,10 @@ void loop() {
       
       //button_one = bluetooth.parseInt();   //this is an example of adding a button, remember though that it must also be defined back at the top
       
-      powerFL = (zero*255)+(one*255);         //In this block we turn our axis values(-1 to 1) into motor power levels (-255 to 255)
-      powerFR = (zero*255)+(-one*255);   
-      powerBL = (zero*255)+(one*255); 
-      powerBR = (zero*255)+(-one*255);        //If a motor is turning in the wrong direction, you'd change these to be positive/negative as required
+      powerFL = (zero*255)+(-one*255);         //In this block we turn our axis values(-1 to 1) into motor power levels (-255 to 255)
+      powerFR = (zero*255)+(one*255);   
+      powerBL = (zero*255)+(-one*255); 
+      powerBR = (zero*255)+(one*255);        //If a motor is turning in the wrong direction, you'd change these to be positive/negative as required
     
       if(powerFL >255){
         powerFL = 255;
