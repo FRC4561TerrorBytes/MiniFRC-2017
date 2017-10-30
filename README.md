@@ -1,23 +1,22 @@
-# MiniFRC-2017
-Driver Station source for MiniFRC 2017
-Follow the tutorials, you shouldn't need to download the source unless you want to play around with it
+# MiniFRC Driver Station and Robot Code
+Follow the tutorials [TODO: link tutorial]. You shouldn't need to download the source unless you want to play around with it.
 
-Version 3.6 has some cool shiny features but is VERY untested - use at your own risk
-NEW- Adjustable Baudrate
-NEW- resizeable screen
-FIXED- some lag, see closed issue for details
-FIXED- blanklines? maybe? see closed issue for details
+NOTE: Do not use any blank lines in the config file.
 
-NOTE: do not use any blank lines in the config file, in theory the code ignores them but in practice there's a bug somewhere
-Things you can type into the config file (exclude all carrots <>):
+Things you can type into the config file (exclude "<>"):
 ```
-COM<#>      <defines the COM port number the program will try to connect to the robot with
-joystick    <tells the program that you intend to use a joystick
+COM<#>      // defines the COM port number the program will try to connect to the robot with
+joystick    // tells the program that you intend to use a joystick
 
-axis,<name>,<forward key>,<backward key>        <sets up an axis controlled by 2 keyboard keys; ex: w and s
-axis,<name>,<joystick number>,<joystick axis>   <sets up an axis controlled by a joystick, supports multiple joysticks
+// Sets up an axis controlled by 2 keyboard keys; ex: W and S
+axis,<name>,<forward key>,<backward key>
+// Sets up an axis controlled by a joystick, supports multiple joysticks
+axis,<name>,<joystick number>,<joystick axis>
 
-button,<name>,<key>                              <sets up a button controlled by the keyboard
-button,<name>,<joystick number>,<joystick button number>  <sets up a button controlled by a joystick button
-BAUD,<number>  							<changes the baudrate of the driver station from 9600 to whatever number you choose
+button,<name>,<key>                                       // Sets up a button controlled by the keyboard
+button,<name>,<joystick number>,<joystick button number>  // Sets up a button controlled by a joystick button
+
+// Changes the baudrate of the driver station from 9600 to whatever number you choose
+BAUD,<number>
+
 ```
